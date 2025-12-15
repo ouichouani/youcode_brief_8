@@ -64,3 +64,4 @@ create table expenses (
 );
 
 SHOW TABLES ;
+SELECT * FROM users ;

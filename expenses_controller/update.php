@@ -4,24 +4,10 @@ include '../connection/connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
 
-
     $ERRORS = [] ;
-
-    //IF VALUE NOT EXISTS , SET NULL IN VARIABLE 
-    $montant = $_POST['montant'] ?? null;
-    $description = trim($_POST['description'] ?? '', ' ');
-    $created_at = $_POST['created_at'] ?? null;
+    
     $id = $_POST['id'] ?? null;
-
-    //VALIDATION MONTANT
-    if (!$montant) {
-        $ERRORS['montant'] = 'montant is required';
-    } else if ($montant < 0) {
-        $ERRORS['montant']  = 'montant can\'t be negative';
-    } else if (!preg_match('/^\d+(\.\d{1,2})?$/', $montant)) {
-        $ERRORS['montant'] = 'montant is invalid';
-    }
-
+    
     //ID VALIDATION
     if (!$id) {
         $ERRORS['id'] = 'id is required';
@@ -29,7 +15,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
         $ERRORS['id'] = 'id must be a positive number';
     }
 
+    $fetch_expence = $connection->prepare("SELECT * FROM expences WHERE id = ? ");
+    $fetch_expence->bind_param('i' , $id_card)  ;
+    $fetch_expence->execute() ;
+    $data_object = $fetch_expence->get_result() ;
+    $data_array = $data_object->fetch_assoc()   ; 
 
+
+    //IF VALUE NOT EXISTS , SET NULL IN VARIABLE 
+    $amount = $_POST['amount'] ?? null;
+    $description = trim($_POST['description'] ?? '', ' ');
+    $id_card = trim($_POST['id_card'] ?? '', ' ');
+    
+    //VALIDATION AMOUNT
+    if (!$amount) {
+        $ERRORS['amount'] = 'amount is required';
+    } else if ($amount < 0) {
+        $ERRORS['amount']  = 'amount can\'t be negative';
+    } else if (!preg_match('/^\d+(\.\d{1,2})?$/', $amount)) {
+        $ERRORS['amount'] = 'amount is invalid';
+    }
+
+
+
+    //CARD VALIDATION 
+    $find_card = $connection->prepare("SELECT * from cards WHERE id = ?") ;
+    $find_card->bind_param('i' , $id_card) ;
+    $find_card->execute() ;
+    $find_card_result = $find_card->get_result() ;
+    $card = $find_card_result->fetch_assoc() ;
+    if(!$card)  $ERRORS['id_card']  = 'card is not exists';
 
     //IF THERE IS AN ERROR
     if (count($ERRORS)) {
@@ -40,13 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
         exit;
     }
 
-    $montant = floatval($montant); // MONTANT VALIDATION 
+
+    $amount = floatval($amount); // amount VALIDATION 
     $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
+    $id_card = intval($id_card);
     $id = intval($id);
+    
 
-
-
-    $stat = $connection->prepare('UPDATE expenses SET montant = ? , description = ? , created_at = ? WHERE id = ?');
+    $stat = $connection->prepare('UPDATE expenses SET amount = ? , description = ? , card_id = ? WHERE id = ?');
 
     if (!$stat) {
         session_start();
@@ -56,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
         exit;
     }
 
-    $stat->bind_param('dssi', $montant, $description, $created_at, $id);
+    $stat->bind_param('dsii', $montant, $description, $id_card ,$id);
     $status = $stat->execute();
 
 
@@ -78,3 +94,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
 $connection->close();
 header('Location: ../index.php');
 exit;
+

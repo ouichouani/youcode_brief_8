@@ -7,19 +7,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $ERRORS = [] ;
 
     //IF VALUE NOT EXISTS , SET NULL IN VARIABLE 
-    $montant = $_POST['montant'] ?? null;
+    $amount = $_POST['amount'] ?? null;
     $description = trim($_POST['description'] ?? '', ' ');
-    $created_at = $_POST['created_at'] ?? null;
+    $id_card = trim($_POST['id_card'] ?? '', ' ');
 
-    //VALIDATION MONTANT
-    if (!$montant) {
-        $ERRORS['montant'] = 'montant is required';
-    } else if ($montant < 0) {
-        $ERRORS['montant']  = 'montant can\'t be negative';
-    } else if (!preg_match('/^\d+(\.\d{1,2})?$/', $montant)) {
-        $ERRORS['montant'] = 'montant is invalid';
+    //VALIDATION AMOUNT
+    if (!$amount) {
+        $ERRORS['amount'] = 'amount is required';
+    } else if ($amount < 0) {
+        $ERRORS['amount']  = 'amount can\'t be negative';
+    } else if (!preg_match('/^\d+(\.\d{1,2})?$/', $amount)) {
+        $ERRORS['amount'] = 'amount is invalid';
     }
 
+    $find_card = $connection->prepare("SELECT * from cards WHERE id = ?") ;
+    $find_card->bind_param('i' , $id_card) ;
+    $find_card->execute() ;
+    $result = $find_card->get_result() ;
+    $row = $result->fetch_assoc() ;
+
+    if(!$rom)  $ERRORS['id_card']  = 'card is not exists';
 
 
     //IF THERE IS AN ERROR
@@ -31,10 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    $montant = floatval($montant); // MONTANT VALIDATION 
+    $amount = floatval($amount); // amount VALIDATION 
     $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
+    $id_card = intval($id_card);
 
-    $stat = $connection->prepare('INSERT INTO expenses (montant, description , created_at) VALUES (? , ?  , ?)');
+    $stat = $connection->prepare('INSERT INTO expenses (amount, description , id_card ) VALUES (? , ?  , ?)');
 
     if (!$stat) {
         session_start();
@@ -44,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    $stat->bind_param('dss', $montant, $description, $created_at);
+    $stat->bind_param('dsi', $amount, $description, $id_card);
     $status = $stat->execute();
 
 

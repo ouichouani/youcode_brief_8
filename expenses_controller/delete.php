@@ -1,9 +1,9 @@
 <?php
 
 include '../connection/connection.php';
-$ERRORS = [];
 
 if ($_SERVER['REQUEST_METHOD'] == "POST" && $_POST["method"] == 'DELETE') {
+    $ERRORS = [];
     $id = $_POST['id'] ?? null;
 
 
