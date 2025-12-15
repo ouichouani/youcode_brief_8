@@ -18,7 +18,7 @@ CREATE TABLE cards (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     user_id INT NULL,
-    CONSTRAINT fk_userid_cards FOREIGN KEY (user_id) REFERENCES users (id)
+    CONSTRAINT fk_userid_cards FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE categories (
@@ -28,7 +28,7 @@ CREATE TABLE categories (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     user_id INT NULL,
-    CONSTRAINT fk_userid_categories FOREIGN KEY (user_id) REFERENCES users (id)
+    CONSTRAINT fk_userid_categories FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE transactions (
@@ -65,3 +65,4 @@ create table expenses (
 
 SHOW TABLES ;
 SELECT * FROM users ;
+SELECT * FROM cards ;
