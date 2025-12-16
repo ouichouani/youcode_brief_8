@@ -60,7 +60,9 @@ create table expenses (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     category_id INT NULL,
-    CONSTRAINT fk_categoryid FOREIGN KEY (category_id) REFERENCES categories (id)
+    id_card INT NOT null ,
+    CONSTRAINT fk_categoryid FOREIGN KEY (category_id) REFERENCES categories (id) ,
+    CONSTRAINT fk_id_card_expences FOREIGN KEY (id_card) REFERENCES cards(id)
 );
 
 SHOW TABLES ;

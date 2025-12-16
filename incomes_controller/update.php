@@ -1,28 +1,48 @@
 <?php
+
 session_start() ;
 include '../connection/connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
 
-
-    $ERRORS = [] ;
+    $ERRORS = [];
+    $params = [];
+    $columns = [];
+    $type = '';
 
     //IF VALUE NOT EXISTS , SET NULL IN VARIABLE 
-    $montant = $_POST['montant'] ?? null;
-    $description = trim($_POST['description'] ?? '', ' ');
-    $created_at = $_POST['created_at'] ?? null;
     $id = $_POST['id'] ?? null;
+    $amount = $_POST['amount'] ?? null;
+    $description = trim($_POST['description'] ?? '', ' ');
+    $id_card = trim($_POST['id_card'] ?? '', ' ');
 
 
-
-    //VALIDATION MONTANT
-    if (!$montant) {
-        $ERRORS['montant'] = 'montant is required';
-    } else if ($montant < 0) {
-        $ERRORS['montant']  = 'montant can\'t be negative';
-    } else if (!preg_match('/^\d+(\.\d{1,2})?$/', $montant)) {
-        $ERRORS['montant'] = 'montant is invalid';
+    //FULL PARAMS TABLE AND TYPE STRING TO UPDATE ONLY NEEDED COLLUMNS
+    if (!empty($amount)) {
+        $amount = floatval($amount);
+        $columns[] = $amount;
+        $params[] = 'amount = ?';
+        $type .= 'd';
     }
+
+    if (!empty($description)) {
+        $description  = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
+        $columns[] = $description;
+        $params[] = 'description = ?';
+        $type .= 's';
+    }
+
+    if (!empty($id_card)) {
+        $id_card  = intval($id_card);
+        $columns[] = $id_card;
+        $params[] = 'id_card = ?';
+        $type .= 'i';
+    }
+
+    //ID MUST BE EXESTS
+    $id  = intval($id);
+    $columns[] = $id;
+    $type .= 'i';
 
     //ID VALIDATION
     if (!$id) {
@@ -31,36 +51,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
         $ERRORS['id'] = 'id must be a positive number';
     }
 
+    //VALIDATION AMOUNT
+    if (!empty($amount)) {
+        if ($amount < 0) $ERRORS['amount']  = 'amount can\'t be negative';
+        if (!preg_match('/^\d+(\.\d{1,2})?$/', $amount)) $ERRORS['amount'] = 'amount is invalid';
+    }
 
+    //BREAK IF THERE IS NOTHING TO UPDATE
+    if (empty($amount) && empty($description) && empty($id_card)) $ERRORS['error'] = 'ther is nothing to update';
 
     //IF THERE IS AN ERROR
     if (count($ERRORS)) {
+        session_start();
         $_SESSION['ERRORS'] = $ERRORS;
         $connection->close();
         header('Location: ../index.php?error=validation');
         exit;
     }
 
-    $montant = intval($montant); // MONTANT VALIDATION 
-    $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
-    $id = intval($id);
+    //BUILD STATEMENT
+    $stat = $connection->prepare('UPDATE incomes SET ' . implode(', ', $params) . 'WHERE id = ?');
+    $stat->bind_param($type, ...$columns);
 
-
-
-    $stat = $connection->prepare('UPDATE incomes SET montant = ? , description = ? , created_at = ? WHERE id = ?');
 
     if (!$stat) {
+        session_start();
         $_SESSION['ERRORS'] = ["Database error: " . $connection->error];
         $connection->close();
         header("Location: ../index.php?error=database");
         exit;
     }
 
-    $stat->bind_param('dssi', $montant, $description, $created_at, $id);
     $status = $stat->execute();
 
-
     if (!$status) {
+        session_start();
         $_SESSION['ERRORS'] = ['update failed' . $stat->error];
         $stat->close();
         $connection->close();
@@ -70,10 +95,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
 
     //UPDATE SUCCEED
     $stat->close();
+    session_start();
     $_SESSION['SUCCESS'] = 'expense updated successfully';
 }
 
 $connection->close();
-header('Location: ../index.php?success=income_updated_successfully');
+header('Location: ../index.php');
 exit;
 
+
+
+
+    // //CHECK IF CARD IS EXISTS
+    // if(!empty($id_card)){
+    //     $fetch_expence = $connection->prepare("SELECT * FROM cards WHERE id = ? ");
+    //     $fetch_expence->bind_param('i' , $id_card)  ;
+    //     $fetch_expence->execute() ;
+    //     $data_object = $fetch_expence->get_result() ;
+    //     $data_array = $data_object->fetch_assoc()   ; 
+    // }

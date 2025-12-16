@@ -4,10 +4,54 @@ include '../connection/connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
 
-    $ERRORS = [] ;
-    
+    $ERRORS = [];
+    $params = [];
+    $columns = [];
+    $type = '';
+
+    //IF VALUE NOT EXISTS , SET NULL IN VARIABLE 
     $id = $_POST['id'] ?? null;
+    $amount = $_POST['amount'] ?? null;
+    $description = trim($_POST['description'] ?? '', ' ');
+    $id_card = trim($_POST['id_card'] ?? '', ' ');
+    $category_id = trim($_POST['category_id'] ?? '', ' ');
+
+
+    //FULL PARAMS TABLE AND TYPE STRING TO UPDATE ONLY NEEDED COLLUMNS
+    if (!empty($amount)) {
+        $amount = floatval($amount);
+        $columns[] = $amount;
+        $params[] = 'amount = ?';
+        $type .= 'd';
+    }
+
+    if (!empty($description)) {
+        $description  = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
+        $columns[] = $description;
+
+        $params[] = 'description = ?';
+        $type .= 's';
+    }
+
+    if (!empty($id_card)) {
+        $id_card  = intval($id_card);
+        $columns[] = $id_card;
+        $params[] = 'id_card = ?';
+        $type .= 'i';
+    }
     
+    if (!empty($category_id)) {
+        $category_id  = intval($category_id);
+        $columns[] = $category_id;
+        $params[] = 'category_id = ?';
+        $type .= 'i';
+    }
+
+    //ID MUST BE EXESTS
+    $id  = intval($id);
+    $columns[] = $id;
+    $type .= 'i';
+
     //ID VALIDATION
     if (!$id) {
         $ERRORS['id'] = 'id is required';
@@ -15,36 +59,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
         $ERRORS['id'] = 'id must be a positive number';
     }
 
-    $fetch_expence = $connection->prepare("SELECT * FROM expences WHERE id = ? ");
-    $fetch_expence->bind_param('i' , $id_card)  ;
-    $fetch_expence->execute() ;
-    $data_object = $fetch_expence->get_result() ;
-    $data_array = $data_object->fetch_assoc()   ; 
-
-
-    //IF VALUE NOT EXISTS , SET NULL IN VARIABLE 
-    $amount = $_POST['amount'] ?? null;
-    $description = trim($_POST['description'] ?? '', ' ');
-    $id_card = trim($_POST['id_card'] ?? '', ' ');
-    
     //VALIDATION AMOUNT
-    if (!$amount) {
-        $ERRORS['amount'] = 'amount is required';
-    } else if ($amount < 0) {
-        $ERRORS['amount']  = 'amount can\'t be negative';
-    } else if (!preg_match('/^\d+(\.\d{1,2})?$/', $amount)) {
-        $ERRORS['amount'] = 'amount is invalid';
+    if (!empty($amount)) {
+        if ($amount < 0) $ERRORS['amount']  = 'amount can\'t be negative';
+        if (!preg_match('/^\d+(\.\d{1,2})?$/', $amount)) $ERRORS['amount'] = 'amount is invalid';
     }
 
-
-
-    //CARD VALIDATION 
-    $find_card = $connection->prepare("SELECT * from cards WHERE id = ?") ;
-    $find_card->bind_param('i' , $id_card) ;
-    $find_card->execute() ;
-    $find_card_result = $find_card->get_result() ;
-    $card = $find_card_result->fetch_assoc() ;
-    if(!$card)  $ERRORS['id_card']  = 'card is not exists';
+    //BREAK IF THERE IS NOTHING TO UPDATE
+    if (empty($amount) && empty($description) && empty($id_card)) $ERRORS['error'] = 'ther is nothing to update';
 
     //IF THERE IS AN ERROR
     if (count($ERRORS)) {
@@ -55,14 +77,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
         exit;
     }
 
+    //BUILD STATEMENT
+    $stat = $connection->prepare('UPDATE expenses SET ' . implode(', ', $params) . 'WHERE id = ?');
+    $stat->bind_param($type, ...$columns);
 
-    $amount = floatval($amount); // amount VALIDATION 
-    $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
-    $id_card = intval($id_card);
-    $id = intval($id);
-    
-
-    $stat = $connection->prepare('UPDATE expenses SET amount = ? , description = ? , card_id = ? WHERE id = ?');
 
     if (!$stat) {
         session_start();
@@ -72,9 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
         exit;
     }
 
-    $stat->bind_param('dsii', $montant, $description, $id_card ,$id);
     $status = $stat->execute();
-
 
     if (!$status) {
         session_start();
@@ -95,3 +111,14 @@ $connection->close();
 header('Location: ../index.php');
 exit;
 
+
+
+
+    // //CHECK IF CARD IS EXISTS
+    // if(!empty($id_card)){
+    //     $fetch_expence = $connection->prepare("SELECT * FROM cards WHERE id = ? ");
+    //     $fetch_expence->bind_param('i' , $id_card)  ;
+    //     $fetch_expence->execute() ;
+    //     $data_object = $fetch_expence->get_result() ;
+    //     $data_array = $data_object->fetch_assoc()   ; 
+    // }

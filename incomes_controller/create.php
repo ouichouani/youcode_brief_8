@@ -7,20 +7,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $ERRORS = [] ;
 
     //IF VALUE NOT EXISTS , SET NULL IN VARIABLE 
-    $montant = $_POST['montant'] ?? null;
+    $amount = $_POST['amount'] ?? null;
     $description = trim($_POST['description'] ?? '', ' ');
-    $created_at = $_POST['created_at'] ?? null;
+    $category_id = trim($_POST['category_id'] ?? '', ' ');
 
-    //VALIDATION MONTANT
-    if (!$montant) {
-        $ERRORS['montant'] = 'montant is required';
-    } else if ($montant < 0) {
-        $ERRORS['montant']  = 'montant can\'t be negative';
-    } else if (!preg_match('/^\d+(\.\d{1,2})?$/', $montant)) {
-        $ERRORS['montant'] = 'montant is invalid';
+    //VALIDATION AMOUNT
+    if (!$amount) {
+        $ERRORS['amount'] = 'amount is required';
+    } else if ($amount < 0) {
+        $ERRORS['amount']  = 'amount can\'t be negative';
+    } else if (!preg_match('/^\d+(\.\d{1,2})?$/', $amount)) {
+        $ERRORS['amount'] = 'amount is invalid';
     }
-
-
 
     //IF THERE IS AN ERROR
     if (count($ERRORS)) {
@@ -31,10 +29,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    $montant = floatval($montant); // MONTANT VALIDATION 
-    $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
+    $find_card = $connection->prepare("SELECT * from categories WHERE id = ?") ;
 
-    $stat = $connection->prepare('INSERT INTO incomes (montant, description , created_at) VALUES (? , ?  , ?)');
+    $find_card->bind_param('i' , $category_id) ;
+    $find_card->execute() ;
+    $result = $find_card->get_result() ;
+    $row = $result->fetch_assoc() ;
+
+    if(!$rom) $ERRORS['category_id']  = 'card is not exists';
+
+
+    $amount = floatval($amount); // amount VALIDATION 
+    $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
+    $category_id = intval($category_id);
+
+    $stat = $connection->prepare('INSERT INTO incomes (amount, description , category_id ) VALUES (? , ?  , ?)');
+
 
     if (!$stat) {
         session_start();
@@ -44,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    $stat->bind_param('dss', $montant, $description, $created_at);
+    $stat->bind_param('dsi', $amount, $description, $category_id);
     $status = $stat->execute();
 
 

@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $amount = $_POST['amount'] ?? null;
     $description = trim($_POST['description'] ?? '', ' ');
     $id_card = trim($_POST['id_card'] ?? '', ' ');
+    $category_id = trim($_POST['category_id'] ?? '', ' ');
 
     //VALIDATION AMOUNT
     if (!$amount) {
@@ -20,13 +21,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $ERRORS['amount'] = 'amount is invalid';
     }
 
-    $find_card = $connection->prepare("SELECT * from cards WHERE id = ?") ;
-    $find_card->bind_param('i' , $id_card) ;
-    $find_card->execute() ;
-    $result = $find_card->get_result() ;
-    $row = $result->fetch_assoc() ;
+    // $find_card = $connection->prepare("SELECT * from cards WHERE id = ?") ;
+    // $find_card->bind_param('i' , $id_card) ;
+    // $find_card->execute() ;
+    // $result = $find_card->get_result() ;
+    // $row = $result->fetch_assoc() ;
 
-    if(!$rom)  $ERRORS['id_card']  = 'card is not exists';
+    // if(!$rom) $ERRORS['id_card']  = 'card is not exists';
 
 
     //IF THERE IS AN ERROR
@@ -38,11 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    $amount = floatval($amount); // amount VALIDATION 
+    $amount = floatval($amount); 
     $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
     $id_card = intval($id_card);
+    $category_id = intval($category_id);
 
-    $stat = $connection->prepare('INSERT INTO expenses (amount, description , id_card ) VALUES (? , ?  , ?)');
+    $stat = $connection->prepare('INSERT INTO expenses (amount, description , id_card , category_id ) VALUES (? , ?  , ? , ?)');
 
     if (!$stat) {
         session_start();
@@ -52,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    $stat->bind_param('dsi', $amount, $description, $id_card);
+    $stat->bind_param('dsii', $amount, $description, $id_card , $category_id);
     $status = $stat->execute();
 
 
