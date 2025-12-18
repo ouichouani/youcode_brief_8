@@ -49,8 +49,10 @@ create table incomes (
     description VARCHAR(500) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    id_card INT NOT null ,
-    CONSTRAINT fk_id_card_incomes FOREIGN KEY (id_card) REFERENCES cards(id)
+    id_card INT NOT null,
+    category_id INT NULL,
+    CONSTRAINT fk_id_card_incomes FOREIGN KEY (id_card) REFERENCES cards (id),
+    CONSTRAINT fk_categoryid FOREIGN KEY (category_id) REFERENCES categories (id)
 );
 
 create table expenses (
@@ -60,11 +62,15 @@ create table expenses (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     category_id INT NULL,
-    id_card INT NOT null ,
-    CONSTRAINT fk_categoryid FOREIGN KEY (category_id) REFERENCES categories (id) ,
-    CONSTRAINT fk_id_card_expences FOREIGN KEY (id_card) REFERENCES cards(id)
+    id_card INT NOT null,
+    CONSTRAINT fk_categoryid_expenses FOREIGN KEY (category_id) REFERENCES categories (id),
+    CONSTRAINT fk_id_card_expences FOREIGN KEY (id_card) REFERENCES cards (id)
 );
 
-SHOW TABLES ;
-SELECT * FROM users ;
-SELECT * FROM cards ;
+SHOW TABLES;
+
+SELECT * FROM users;
+
+SELECT * FROM cards;
+
+SELECT * FROM categories;

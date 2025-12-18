@@ -1,10 +1,8 @@
 <?php
 
-include '../connection/connection.php';
+include '../../connection/connection.php';
 session_start() ;
 session_unset() ;
-
-
 
 $ERRORS = [];
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -36,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = htmlspecialchars($name);
     if(!empty($description)) $description = htmlspecialchars($description);
 
-    $statement = $connection->prepare('INSERT INTO categories (name , description , user_id) VALUES( ? , ? , ? )') ;
+    $statement = $connection->prepare('INSERT INTO cards (name , description , user_id) VALUES( ? , ? , ? )') ;
     if(!$statement){
         $ERRORS['connection'] = "connection: $connection->error" ;
         $connection->close();
@@ -60,6 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 $connection->close();
-$_SESSION['success'] = 'categiory created successfuly' ;
-header('location: ../index.php?success=categiory_created_successfuly');
+$_SESSION['success'] = 'card created successfuly' ;
+header('location: ../index.php?success=card_created_successfuly');
 exit;

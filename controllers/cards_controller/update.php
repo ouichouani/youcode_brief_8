@@ -1,6 +1,6 @@
 <?php
 
-include '../connection/connection.php';
+include '../../connection/connection.php';
 session_start();
 session_unset();
 
@@ -33,15 +33,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] = 'PUT') {
     }
 
     if (!empty($name) && !empty($description)) {
-        $statement = $connection->prepare("UPDATE categories SET name = ? , description = ? WHERE id = ? ");
+        $statement = $connection->prepare("UPDATE cards SET name = ? , description = ? WHERE id = ? ");
         $statement->bind_param('ssi', $name, $description, $id);
 
     } else if (!empty($name) && empty($description)) {
-        $statement = $connection->prepare("UPDATE categories SET name = ? WHERE id = ? ");
+        $statement = $connection->prepare("UPDATE cards SET name = ? WHERE id = ? ");
         $statement->bind_param('si', $name, $id);
 
     } else if (empty($name) && !empty($description)) {
-        $statement = $connection->prepare("UPDATE categories SET description = ? WHERE id = ? ");
+        $statement = $connection->prepare("UPDATE cards SET description = ? WHERE id = ? ");
         $statement->bind_param('si', $description, $id);
 
     } else{
@@ -62,6 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] = 'PUT') {
 }
 
 $connection->close();
-$_SESSION['success'] = 'categirie created successfuly';
-header('location: ../index.php?success=categirie_created_successfuly');
+$_SESSION['success'] = 'card created successfuly';
+header('location: ../index.php?success=card_created_successfuly');
 exit;

@@ -1,6 +1,6 @@
 <?php
 
-include '../connection/connection.php';
+include '../../connection/connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'DELETE') {
 
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'DELETE') {
     }
 
 
-    $statement = $connection->prepare('DELETE from categories WHERE id = ?');
+    $statement = $connection->prepare('DELETE from cards WHERE id = ?');
     $statement->bind_param('i' , $id) ;
     $status = $statement->execute();
 
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'DELETE') {
 
 
 $connection->close();
-$_SESSION['seccess'] = 'category deleted successfully';
-header('location: ../index.php?success=category_deleted_successfuly');
+$_SESSION['seccess'] = 'card deleted successfully';
+header('location: ../index.php?success=card_deleted_successfuly');
 exit;
 

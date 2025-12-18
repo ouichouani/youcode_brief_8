@@ -1,7 +1,7 @@
 <?php
-include '../connection/connection.php' ;
-
+include '../../connection/connection.php' ;
 session_start() ;
+session_unset() ;
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
@@ -18,17 +18,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     if($confirm_password != $password) $ERRORS["confirm_password"] = 'confirmed password should be idontical with password' ;
 
     //EMAIL VERIFICATION
-    $statement = $connection->prepare("SELECT * FROM users WHERE email = ? LIMIT 1  ");
-    $statement->bind_param('s', $email);
-    $statement->execute();
-    $result = $statement->get_result() ;
+    $get_user_statement = $connection->prepare("SELECT * FROM users WHERE email = ? LIMIT 1  ");
+    $get_user_statement->bind_param('s', $email);
+    $get_user_statement->execute();
+    $result = $get_user_statement->get_result() ;
     $row = $result->fetch_assoc() ;
     if($row) $ERRORS["email"] = 'email is already used' ;
     
 
     if(count($ERRORS)){
         $_SESSION['error'] = $ERRORS ;
-        header('Location: ../index.php?error=invalid_data') ;
+        header('Location: ../../index.php?error=invalid_data') ;
         exit ;
     }
 
@@ -41,22 +41,33 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     
     if(!$statment) {
         $_SESSION['error'] = 'invalid statment' ;
-        header('Location: ../index.php?error=invalid_statment') ;
+        header('Location: ../../index.php?error=invalid_statment') ;
         exit ;
     }
 
     $statment->bind_param('sss' , $fullname , $email , $hashed_password ) ;
     $status = $statment->execute() ;
 
+    $get_user_statement->bind_param('s' , $email) ;
+    $get_user_statement->execute() ;
+    $result_authuser = $get_user_statement->get_result() ;
+    $row_authuser = $result_authuser->fetch_assoc() ;
+
     if(!$status){
         $_SESSION['error'] = 'sql error ' . $statment->error ;
-        header('Location: ../index.php?error=sql_error') ;
+        header('Location: ../../index.php?error=sql_error') ;
         exit ;
     }
+
+
+    $_SESSION['AuthUser'] = $row_authuser;
+    $connection->close() ;
+    $_SESSION['success'] = "user created with success" ;
+    header('Location: ../../index.php?success=user_created_successfuly') ;
+    exit ;
+
 }
 
-$connection->close() ;
-$_SESSION['error'] = [] ;
-$_SESSION['success'] = "user created with success" ;
-header('Location: ../index.php?success=user created successfuly') ;
-exit ;
+$connection->close();
+header('Location: ../../index.php?error=invalid_method_for_login');
+exit;

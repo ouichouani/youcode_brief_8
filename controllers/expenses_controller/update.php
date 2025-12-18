@@ -1,6 +1,6 @@
 <?php
 
-include '../connection/connection.php';
+include '../../connection/connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
 
@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
         session_start();
         $_SESSION['ERRORS'] = $ERRORS;
         $connection->close();
-        header('Location: ../index.php?error=validation');
+        header('Location: ../../index.php?error=validation');
         exit;
     }
 
@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
         session_start();
         $_SESSION['ERRORS'] = ["Database error: " . $connection->error];
         $connection->close();
-        header("Location: ../index.php?error=database");
+        header("Location: ../../index.php?error=database");
         exit;
     }
 
@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
         $_SESSION['ERRORS'] = ['update failed' . $stat->error];
         $stat->close();
         $connection->close();
-        header('Location: ../index.php?error=update_failed');
+        header('Location: ../../index.php?error=update_failed');
         exit;
     }
 
@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
 }
 
 $connection->close();
-header('Location: ../index.php');
+header('Location: ../../index.php');
 exit;
 
 

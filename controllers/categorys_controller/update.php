@@ -1,15 +1,16 @@
 <?php
 
-include '../connection/connection.php';
 session_start();
 session_unset();
+include '../../connection/connection.php';
+
 
 $ERRORS = [];
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] = 'PUT') {
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['method']) && $_POST['method'] == 'PUT') {
 
-    isset($_POST['name']) ? $name = trim($_POST['name']) : $name = null;
+    isset($_POST['name']) ? $name = trim($_POST['name']) : $name = '';
     isset($_POST['description']) ? $description = trim($_POST['description']) : $description = null;
-    isset($_POST['id']) ? $id = $_POST['id'] : $id = null;
+    isset($_POST['id']) ? $id = $_POST['id'] : $id = '';
 
 
     if (!empty($name)) {
@@ -28,25 +29,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] = 'PUT') {
     if (count($ERRORS)) {
         $connection->close();
         $_SESSION['error'] = $ERRORS;
-        header('location: ../index.php?error=invalide_values');
+        header('location: ../../index.php?error=invalide_values');
         exit;
     }
 
     if (!empty($name) && !empty($description)) {
-        $statement = $connection->prepare("UPDATE cards SET name = ? , description = ? WHERE id = ? ");
+        $statement = $connection->prepare("UPDATE categories SET name = ? , description = ? WHERE id = ? ");
         $statement->bind_param('ssi', $name, $description, $id);
 
     } else if (!empty($name) && empty($description)) {
-        $statement = $connection->prepare("UPDATE cards SET name = ? WHERE id = ? ");
+        $statement = $connection->prepare("UPDATE categories SET name = ? WHERE id = ? ");
         $statement->bind_param('si', $name, $id);
 
     } else if (empty($name) && !empty($description)) {
-        $statement = $connection->prepare("UPDATE cards SET description = ? WHERE id = ? ");
+        $statement = $connection->prepare("UPDATE categories SET description = ? WHERE id = ? ");
         $statement->bind_param('si', $description, $id);
 
     } else{
         $connection->close(); 
-        header('location: ../index.php?error=nothing_to_update');
+        header('location: ../../index.php?error=nothing_to_update');
         exit;
     }
     
@@ -56,12 +57,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] = 'PUT') {
         $ERRORS['error'] = "sql error : $statement->error";
         $_SESSION['error'] = $ERRORS;
         $connection->close();
-        header('location: ../index.php?error=invalide_values');
+        header('location: ../../index.php?error=invalide_values');
         exit;
     }
+
+    $connection->close();
+    $_SESSION['success'] = 'categirie created successfuly';
+    header('location: ../../index.php?success=categirie_created_successfuly');
+    exit;
 }
 
 $connection->close();
-$_SESSION['success'] = 'card created successfuly';
-header('location: ../index.php?success=card_created_successfuly');
+$_SESSION['error'] = ['message'=>'method is not valid'];
+header('location: ../../index.php?error=method_is_not_valid');
 exit;

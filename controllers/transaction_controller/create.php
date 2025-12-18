@@ -1,6 +1,8 @@
 <?php
 
-include '../connection/connection.php';
+include '../../connection/connection.php';
+session_unset();
+session_start();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -9,8 +11,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     //IF VALUE NOT EXISTS , SET NULL IN VARIABLE 
     $amount = $_POST['amount'] ?? null;
     $description = trim($_POST['description'] ?? '', ' ');
-    $id_card = trim($_POST['id_card'] ?? '', ' ');
-    $category_id = trim($_POST['category_id'] ?? '', ' ');
+    $id_card_sender = trim($_POST['id_card_sender'] ?? '', ' ');
+    $id_card_receiver = trim($_POST['id_card_receiver'] ?? '', ' ');
 
     //VALIDATION AMOUNT
     if (!$amount) {
@@ -32,48 +34,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     //IF THERE IS AN ERROR
     if (count($ERRORS)) {
-        session_start();
         $_SESSION['ERRORS'] = $ERRORS;
         $connection->close();
-        header('Location: ../index.php?error=validation');
+        header('Location: ../../index.php?error=validation');
         exit;
     }
 
     $amount = floatval($amount); 
     $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
-    $id_card = intval($id_card);
-    $category_id = intval($category_id);
+    $id_card_sender = intval($id_card_sender);
+    $id_card_receiver = intval($id_card_receiver);
 
-    $stat = $connection->prepare('INSERT INTO expenses (amount, description , id_card , category_id ) VALUES (? , ?  , ? , ?)');
+    $stat = $connection->prepare('INSERT INTO transactions (amount, description , id_card_sender , id_card_receiver ) VALUES (? , ?  , ? , ?)');
 
     if (!$stat) {
-        session_start();
         $_SESSION['ERRORS'] = ["Database error: " . $connection->error];
         $connection->close();
-        header("Location: ../index.php?error=database");
+        header("Location: ../../index.php?error=database");
         exit;
     }
 
-    $stat->bind_param('dsii', $amount, $description, $id_card , $category_id);
+    $stat->bind_param('dsii', $amount, $description, $id_card_sender , $id_card_receiver);
     $status = $stat->execute();
 
 
     if (!$status) {
-        session_start();
         $_SESSION['ERRORS'] = ['creation failed' . $stat->error];
         $stat->close();
         $connection->close();
-        header('Location: ../index.php?error=creation_failed');
+        header('Location: ../../index.php?error=creation_failed');
         exit;
     }
 
     //CREATE SUCCEED
     $stat->close();
-    session_start();
-    $_SESSION['SUCCESS'] = 'expense created successfully';
+    $_SESSION['SUCCESS'] = 'transaction created successfully';
 }
 
 $connection->close();
-header('Location: ../index.php');
+header('Location: ../../../index.php');
 exit;
 

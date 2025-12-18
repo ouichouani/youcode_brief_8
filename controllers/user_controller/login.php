@@ -1,5 +1,5 @@
 <?php
-include '../connection/connection.php';
+include '../../connection/connection.php';
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $ERRORS['error'] = "statement is not correct";
         $_SESSION["errors"] = $ERRORS;
         $connection->close();
-        header('Location: ../index.php?error=statement');
+        header('Location: ../../index.php?error=statement');
         exit;
     }
 
@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $ERRORS['error'] = "sql error";
         $_SESSION["errors"] = $ERRORS;
         $connection->close();
-        header('Location: ../index.php?error=sqllll');
+        header('Location: ../../index.php?error=sqllll');
         exit;
     }
 
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $ERRORS['error'] = "email doesn't exists";
         $_SESSION["errors"] = $ERRORS;
         $connection->close();
-        header('Location: ../index.php?error=email_is_not_exists');
+        header('Location: ../../index.php?error=email_is_not_exists');
         exit;
     }
 
@@ -50,16 +50,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $ERRORS['error'] = "password is not correct";
         $_SESSION["errors"] = $ERRORS;
         $connection->close();
-        header('Location: ../index.php?error=password_is_not_correct');
+        header('Location: ../../index.php?error=password_is_not_correct');
         exit;
     }
 
-    $_SESSION['authUser'] = $row;
+    $_SESSION['AuthUser'] = $row;
     $connection->close();
-    header('Location: ../index.php?success=user_loged_in_with_success');
+    header('Location: ../../index.php?success=user_loged_in_with_success');
     exit;
 }
 
 $connection->close();
-header('Location: ../index.php?error=invalid_method_for_login');
+header('Location: ../../index.php?error=invalid_method_for_login');
 exit;

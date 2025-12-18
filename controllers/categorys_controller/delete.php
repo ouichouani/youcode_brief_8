@@ -1,6 +1,6 @@
 <?php
 
-include '../connection/connection.php';
+include '../../connection/connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'DELETE') {
 
@@ -15,12 +15,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'DELETE') {
     if (count($ERRORS)) {
         $connection->close();
         $_SESSION['error'] = $ERRORS;
-        header('location: ../index.php?error=invalide_id_value');
+        header('location: ../../index.php?error=invalide_id_value');
         exit;
     }
 
 
-    $statement = $connection->prepare('DELETE from cards WHERE id = ?');
+    $statement = $connection->prepare('DELETE from categories WHERE id = ?');
     $statement->bind_param('i' , $id) ;
     $status = $statement->execute();
 
@@ -28,14 +28,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'DELETE') {
         $ERRORS['error'] = "sql error : $statement->error";
         $_SESSION['error'] = $ERRORS;
         $connection->close();
-        header('location: ../index.php?error=delete_faild');
+        header('location: ../../index.php?error=delete_faild');
         exit;
     }
 }
 
 
 $connection->close();
-$_SESSION['seccess'] = 'card deleted successfully';
-header('location: ../index.php?success=card_deleted_successfuly');
+$_SESSION['seccess'] = 'category deleted successfully';
+header('location: ../../index.php?success=category_deleted_successfuly');
 exit;
 

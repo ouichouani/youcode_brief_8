@@ -1,6 +1,6 @@
 <?php
 
-include '../connection/connection.php';
+include '../../connection/connection.php';
 $ERRORS = [];
 
 if ($_SERVER['REQUEST_METHOD'] == "POST" && $_POST["method"] == 'DELETE') {
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $_POST["method"] == 'DELETE') {
         session_start();
         $_SESSION['ERRORS'] = $ERRORS;
         $connection->close();
-        header('Location: ../index.php?error=validation');
+        header('Location: ../../index.php?error=validation');
         exit;
     }
 
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $_POST["method"] == 'DELETE') {
         session_start() ;
         $_SESSION['ERROR'] = "ERROR  $connection->error" ;
         $connection->close() ; 
-        header('Location: ../index.php?error=server error') ;
+        header('Location: ../../index.php?error=server error') ;
         exit() ;
     }
 
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $_POST["method"] == 'DELETE') {
         session_start() ;
         $_SESSION['ERROR'] = "ERROR  $statement->error" ;
         $connection->close() ; 
-        header('Location: ../index.php?error=sql error') ;
+        header('Location: ../../index.php?error=sql error') ;
         exit() ;
     }
 
@@ -53,5 +53,5 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $_POST["method"] == 'DELETE') {
 
 
 $connection->close() ;
-header("Location: ../index.php?success=delete successfully");
+header("Location: ../../index.php?success=delete successfully");
 exit;

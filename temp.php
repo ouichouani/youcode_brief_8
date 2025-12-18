@@ -12,8 +12,7 @@ $expenses = $_SESSION['EXPENCES'];
 $incomes = $_SESSION['INCOMES'];
 $categories = $_SESSION['CATEGORIES'];
 $cards = $_SESSION['CARDS'];
-// print_r(isset($_SESSION['AuthUser']) ? $_SESSION['AuthUser'] : "");
-isset($_SESSION['AuthUser']) ? $AuthUser = $_SESSION['AuthUser'] : $AuthUser = [];
+isset($_SESSION['AuthUser']) ? $AuthUser = $_SESSION['AuthUser'] : $AuthUser = [] ;
 $isAuthenticated = !empty($AuthUser);
 
 ?>
@@ -34,40 +33,29 @@ $isAuthenticated = !empty($AuthUser);
         <!-- Header with Auth Buttons -->
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Financial Dashboard</h1>
-
+            
             <!-- Auth Buttons -->
             <div class="flex gap-3">
                 <?php if ($isAuthenticated): ?>
                     <!-- Authenticated User Buttons -->
-                    <!-- onclick="window.location.href='controllers/user_controller/logout.php'" -->
-                    <button id="logout" class="px-5 py-2.5 rounded-lg bg-gray-500 hover:bg-gray-600 text-white font-semibold transition duration-200 shadow-md">
+                     <!-- onclick="window.location.href='controllers/user_controller/logout.php'" -->
+                    <button id="logout"  class="px-5 py-2.5 rounded-lg bg-gray-500 hover:bg-gray-600 text-white font-semibold transition duration-200 shadow-md">
                         Logout
                     </button>
                     <button class="create_transaction px-5 py-2.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold transition duration-200 shadow-md">
                         + New Transaction
                     </button>
-
-                    <button id="create_card" class="px-5 py-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white font-semibold transition duration-200 shadow-md">
-                        create_card
-                    </button>
-                    <button id="create_category" class="px-5 py-2.5 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white font-semibold transition duration-200 shadow-md">
-                        create_category
-                    </button>
-
-
                 <?php else: ?>
                     <!-- Guest User Buttons -->
-                    <!-- onclick="window.location.href='controllers/user_controller/login.php'" -->
-                    <button id="login" class="px-5 py-2.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold transition duration-200 shadow-md">
+                     <!-- onclick="window.location.href='controllers/user_controller/login.php'" -->
+                    <button id="login"  class="px-5 py-2.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold transition duration-200 shadow-md">
                         Login
                     </button>
                     <!--onclick=" window.location.href='controllers/user_controller/rejester.php'" -->
-                    <button id="Register" class="px-5 py-2.5 rounded-lg bg-green-500 hover:bg-green-600 text-white font-semibold transition duration-200 shadow-md">
+                    <button id="Register"  class="px-5 py-2.5 rounded-lg bg-green-500 hover:bg-green-600 text-white font-semibold transition duration-200 shadow-md">
                         Register
                     </button>
-
                 <?php endif; ?>
-
             </div>
         </div>
 
@@ -236,3 +224,5 @@ $isAuthenticated = !empty($AuthUser);
 
     <script src="main.js"></script>
 </body>
+
+</html>
