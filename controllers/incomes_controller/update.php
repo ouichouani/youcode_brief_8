@@ -3,6 +3,9 @@
 session_start() ;
 include '../../connection/connection.php';
 
+unset($_SESSION['error']);
+unset($_SESSION['success']);
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
 
     $ERRORS = [];
@@ -45,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
     $type .= 'i';
 
     //ID VALIDATION
-    if (!$id) {
+    if (empty($id)) {
         $ERRORS['id'] = 'id is required';
     } else if (!is_numeric($id) || $id <= 0) {
         $ERRORS['id'] = 'id must be a positive number';
@@ -63,20 +66,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
     //IF THERE IS AN ERROR
     if (count($ERRORS)) {
         session_start();
-        $_SESSION['ERRORS'] = $ERRORS;
+        $_SESSION['error'] = $ERRORS;
         $connection->close();
         header('Location: ../../index.php?error=validation');
         exit;
     }
 
     //BUILD STATEMENT
-    $stat = $connection->prepare('UPDATE incomes SET ' . implode(', ', $params) . 'WHERE id = ?');
-    $stat->bind_param($type, ...$columns);
+    $stat = $connection->prepare("UPDATE incomes SET " . implode(', ', $params) . " WHERE id = ?");
+    $stat->bind_param($type, ...$columns );
 
 
     if (!$stat) {
         session_start();
-        $_SESSION['ERRORS'] = ["Database error: " . $connection->error];
+        $_SESSION['error'] = ["Database error: " . $connection->error];
         $connection->close();
         header("Location: ../../index.php?error=database");
         exit;
@@ -86,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
 
     if (!$status) {
         session_start();
-        $_SESSION['ERRORS'] = ['update failed' . $stat->error];
+        $_SESSION['error'] = ['update failed' . $stat->error];
         $stat->close();
         $connection->close();
         header('Location: ../../index.php?error=update_failed');
@@ -95,8 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
 
     //UPDATE SUCCEED
     $stat->close();
-    session_start();
-    $_SESSION['SUCCESS'] = 'expense updated successfully';
+    $_SESSION['success'] = 'expense updated successfully';
 }
 
 $connection->close();

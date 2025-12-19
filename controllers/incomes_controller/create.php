@@ -1,6 +1,9 @@
 <?php
 
 include '../../connection/connection.php';
+session_start() ;
+unset($_SESSION['error']);
+unset($_SESSION['success']);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -9,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     //IF VALUE NOT EXISTS , SET NULL IN VARIABLE 
     $amount = $_POST['amount'] ?? null;
     $description = trim($_POST['description'] ?? '', ' ');
-    $category_id = trim($_POST['category_id'] ?? '', ' ');
+    $id_card = trim($_POST['id_card'] ?? '', ' ');
 
     //VALIDATION AMOUNT
     if (!$amount) {
@@ -23,44 +26,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     //IF THERE IS AN ERROR
     if (count($ERRORS)) {
         session_start();
-        $_SESSION['ERRORS'] = $ERRORS;
+        $_SESSION['error'] = $ERRORS;
         $connection->close();
         header('Location: ../../index.php?error=validation');
         exit;
     }
 
-    $find_card = $connection->prepare("SELECT * from categories WHERE id = ?") ;
+    $find_card = $connection->prepare("SELECT * from cards WHERE id = ?") ;
 
-    $find_card->bind_param('i' , $category_id) ;
+    $find_card->bind_param('i' , $id_card) ;
     $find_card->execute() ;
     $result = $find_card->get_result() ;
     $row = $result->fetch_assoc() ;
 
-    if(!$row) $ERRORS['category_id']  = 'card is not exists';
+    if(!$row) $ERRORS['id_card']  = 'card is not exists';
 
 
     $amount = floatval($amount); // amount VALIDATION 
     $description = htmlspecialchars($description, ENT_QUOTES, 'UTF-8');
-    $category_id = intval($category_id);
+    $id_card = intval($id_card);
 
-    $stat = $connection->prepare('INSERT INTO incomes (amount, description , category_id ) VALUES (? , ?  , ?)');
+    $stat = $connection->prepare('INSERT INTO incomes (amount, description , id_card ) VALUES (? , ?  , ?)');
 
 
     if (!$stat) {
         session_start();
-        $_SESSION['ERRORS'] = ["Database error: " . $connection->error];
+        $_SESSION['error'] = ["Database error: " . $connection->error];
         $connection->close();
         header("Location: ../../index.php?error=database");
         exit;
     }
 
-    $stat->bind_param('dsi', $amount, $description, $category_id);
+    $stat->bind_param('dsi', $amount, $description, $id_card);
     $status = $stat->execute();
 
 
     if (!$status) {
         session_start();
-        $_SESSION['ERRORS'] = ['creation failed' . $stat->error];
+        $_SESSION['error'] = ['creation failed' . $stat->error];
         $stat->close();
         $connection->close();
         header('Location: ../../index.php?error=creation_failed');
@@ -69,8 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     //CREATE SUCCEED
     $stat->close();
-    session_start();
-    $_SESSION['SUCCESS'] = 'expense created successfully';
+    $_SESSION['success'] = 'expense created successfully';
 }
 
 $connection->close();
