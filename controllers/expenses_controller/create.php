@@ -1,6 +1,9 @@
 <?php
 
+session_start() ;
 include '../../connection/connection.php';
+unset($_SESSION['error']);
+unset($_SESSION['success']);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
@@ -32,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     //IF THERE IS AN ERROR
     if (count($ERRORS)) {
-        session_start();
         $_SESSION['ERRORS'] = $ERRORS;
         $connection->close();
         header('Location: ../../index.php?error=validation');
@@ -47,7 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stat = $connection->prepare('INSERT INTO expenses (amount, description , id_card , category_id ) VALUES (? , ?  , ? , ?)');
 
     if (!$stat) {
-        session_start();
         $_SESSION['ERRORS'] = ["Database error: " . $connection->error];
         $connection->close();
         header("Location: ../../index.php?error=database");
@@ -59,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 
     if (!$status) {
-        session_start();
         $_SESSION['ERRORS'] = ['creation failed' . $stat->error];
         $stat->close();
         $connection->close();
@@ -69,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     //CREATE SUCCEED
     $stat->close();
-    session_start();
     $_SESSION['SUCCESS'] = 'expense created successfully';
 }
 

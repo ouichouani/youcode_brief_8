@@ -4,6 +4,9 @@
 // include '../../connection/connection.php';
 include 'connection/connection.php';
 
+unset($_SESSION['error']);
+unset($_SESSION['success']);
+
 $TOTAL_EXPENSES = 0 ;
 $EXPENCES = [];
 $ERRORS = [];

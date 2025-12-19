@@ -1,6 +1,10 @@
 <?php
 
+session_start() ;
 include '../../connection/connection.php';
+
+unset($_SESSION['error']);
+unset($_SESSION['success']);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
 
@@ -13,8 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
     $id = $_POST['id'] ?? null;
     $amount = $_POST['amount'] ?? null;
     $description = trim($_POST['description'] ?? '', ' ');
-    $id_card = trim($_POST['id_card'] ?? '', ' ');
-    $category_id = trim($_POST['category_id'] ?? '', ' ');
+    $id_card = $_POST['id_card'] ?? null;
+    $category_id = $_POST['category_id'] ?? null;
 
 
     //FULL PARAMS TABLE AND TYPE STRING TO UPDATE ONLY NEEDED COLLUMNS
@@ -70,21 +74,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
 
     //IF THERE IS AN ERROR
     if (count($ERRORS)) {
-        session_start();
-        $_SESSION['ERRORS'] = $ERRORS;
+        $_SESSION['error'] = $ERRORS;
         $connection->close();
         header('Location: ../../index.php?error=validation');
         exit;
     }
 
     //BUILD STATEMENT
-    $stat = $connection->prepare('UPDATE expenses SET ' . implode(', ', $params) . 'WHERE id = ?');
+    $stat = $connection->prepare('UPDATE expenses SET ' . implode(', ', $params) . ' WHERE id = ?');
     $stat->bind_param($type, ...$columns);
 
 
     if (!$stat) {
-        session_start();
-        $_SESSION['ERRORS'] = ["Database error: " . $connection->error];
+        $_SESSION['error'] = ["Database error: " . $connection->error];
         $connection->close();
         header("Location: ../../index.php?error=database");
         exit;
@@ -93,8 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
     $status = $stat->execute();
 
     if (!$status) {
-        session_start();
-        $_SESSION['ERRORS'] = ['update failed' . $stat->error];
+        $_SESSION['error'] = ['update failed' . $stat->error];
         $stat->close();
         $connection->close();
         header('Location: ../../index.php?error=update_failed');
@@ -103,8 +104,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'PUT') {
 
     //UPDATE SUCCEED
     $stat->close();
-    session_start();
-    $_SESSION['SUCCESS'] = 'expense updated successfully';
+    $_SESSION['success'] = 'expense updated successfully';
 }
 
 $connection->close();

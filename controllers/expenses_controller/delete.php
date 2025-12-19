@@ -1,6 +1,9 @@
 <?php
 
+session_start() ;
 include '../../connection/connection.php';
+unset($_SESSION['error']);
+unset($_SESSION['success']);
 
 if ($_SERVER['REQUEST_METHOD'] == "POST" && $_POST["method"] == 'DELETE') {
     $ERRORS = [];
@@ -16,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $_POST["method"] == 'DELETE') {
 
     //IF THERE IS AN ERROR
     if (count($ERRORS)) {
-        session_start();
         $_SESSION['ERRORS'] = $ERRORS;
         $connection->close();
         header('Location: ../../index.php?error=validation');
@@ -26,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $_POST["method"] == 'DELETE') {
 
     $statement = $connection->prepare('DELETE FROM expenses WHERE id = ? ');
     if(!$statement){
-        session_start() ;
         $_SESSION['ERROR'] = "ERROR  $connection->error" ;
         $connection->close() ; 
         header('Location: ../../index.php?error=server error') ;
@@ -37,8 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $_POST["method"] == 'DELETE') {
     $state = $statement->execute();
 
     if(!$state){
-
-        session_start() ;
         $_SESSION['ERROR'] = "ERROR  $statement->error" ;
         $connection->close() ; 
         header('Location: ../../index.php?error=sql error') ;
@@ -47,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && $_POST["method"] == 'DELETE') {
 
     
     $statement->close();
-    session_start();
     $_SESSION['SUCCESS'] = 'expense updated successfully';
 }
 
