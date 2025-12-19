@@ -1,8 +1,9 @@
 <?php
 
 include '../../connection/connection.php';
-session_start();
-session_unset();
+session_start() ;
+unset($_SESSION['error']);
+unset($_SESSION['success']);
 
 $ERRORS = [];
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] = 'PUT') {

@@ -1,6 +1,9 @@
 <?php
 
+session_start() ;
 include '../../connection/connection.php';
+unset($_SESSION['error']);
+unset($_SESSION['success']);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'DELETE') {
 
@@ -35,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST['method'] == 'DELETE') {
 
 
 $connection->close();
-$_SESSION['seccess'] = 'category deleted successfully';
+$_SESSION['success'] = 'category deleted successfully';
 header('location: ../../index.php?success=category_deleted_successfuly');
 exit;
 

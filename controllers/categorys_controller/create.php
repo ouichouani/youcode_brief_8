@@ -1,7 +1,8 @@
 <?php
 
 session_start() ;
-session_unset() ;
+unset($_SESSION['error']);
+unset($_SESSION['success']);
 include '../../connection/connection.php';
 
 
