@@ -8,27 +8,33 @@ unset($_SESSION['success']);
 $CATEGORIES = [];
 $ERRORS = [];
 
-$statement = $connection->query('SELECT * FROM categories');
+if (isset($_SESSION['AuthUser'])) {
 
-if (!$statement) {
-    $_SESSION['error'] = 'Database error: ' . $connection->error;
-    $ERRORS[] = 'Query execution failed';
-    $connection->close();
-    header('Location: ../../index.php?error_category_fetched');
-    exit;
-}
+    $statement = $connection->query('SELECT * FROM categories WHERE user_id = ' . $_SESSION['AuthUser']['id']);
 
-if ($statement->num_rows > 0) {
-    while ($row = $statement->fetch_assoc()) {
-        $CATEGORIES[] = $row;
+    if (!$statement) {
+        $_SESSION['error'] = 'Database error: ' . $connection->error;
+        $ERRORS[] = 'Query execution failed';
+        $connection->close();
+        header('Location: ../../index.php?error_category_fetched');
+        exit;
     }
-    $_SESSION['CATEGORIES'] = $CATEGORIES;
-    $_SESSION['success'] = 'Data fetched successfully';
-} else {
-    $_SESSION['CATEGORIES'] = ['message' => 'No categories available'];
-}
 
-$statement->close();
+    if ($statement->num_rows > 0) {
+        while ($row = $statement->fetch_assoc()) {
+            $CATEGORIES[] = $row;
+        }
+        $_SESSION['CATEGORIES'] = $CATEGORIES;
+        $_SESSION['success'] = 'Data fetched successfully';
+    } else {
+        $_SESSION['CATEGORIES'] = [];
+    }
+
+    $statement->close();
+} else {
+    $_SESSION['error'] = ['message' => 'user must be authenticated first'];
+    $_SESSION['CATEGORIES'] = [];
+}
 $connection->close();
 
 // header('Location: ../../index.php?category_fetched_successfully');

@@ -1,14 +1,20 @@
 <?php
 
 session_start();
-session_unset();
+unset($_SESSION['error']);
+unset($_SESSION['success']);
 include '../../connection/connection.php';
 
 
 $ERRORS = [];
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['method']) && $_POST['method'] == 'PUT') {
 
+    $type='';
+    $columns = [];
+    $params = [];
+
     isset($_POST['name']) ? $name = trim($_POST['name']) : $name = '';
+    isset($_POST['limits']) ? $limits = trim($_POST['limits']) : $limits = '';
     isset($_POST['description']) ? $description = trim($_POST['description']) : $description = null;
     isset($_POST['id']) ? $id = $_POST['id'] : $id = '';
 
@@ -16,15 +22,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['method']) && $_POST['m
     if (!empty($name)) {
         if (!preg_match('/^[a-zA-Z0-9\s.,!?-]{3,100}$/', $name)) $ERRORS['name'] = 'Name must be 3-100 characters with valid characters';
         $name = htmlspecialchars($name);
+        
+        $type .= 's' ;
+        $columns[] = 'name = ?' ;
+        $params[] = $name ;
     }
 
+    if (!empty($limits)) {
+        if (floatval($limits)) $ERRORS['limits'] = 'limit is not valid';
+        $limits = htmlspecialchars($limits);
+
+        $type .= 'd' ;
+        $columns[] = 'limits = ?' ;
+        $params[] = $limits ;
+    }
+    if (!empty($description)) {
+        $description = htmlspecialchars($description);
+        
+        $type .= 's' ;
+        $columns[] = 'description = ?' ;
+        $params[] = $description ;
+    }
+    
     if (!$id){
         $ERRORS['id'] = 'id is required';
         if (!preg_match('/^[1-9][0-9]*$/', $id)) $ERRORS['id'] = 'id is unvalid regex';
     }
 
-
-    if (!empty($description)) $description = htmlspecialchars($description);
+    $type .= 'i' ;
+    $params[] = $id ;
 
     if (count($ERRORS)) {
         $connection->close();
@@ -33,25 +59,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['method']) && $_POST['m
         exit;
     }
 
-    if (!empty($name) && !empty($description)) {
-        $statement = $connection->prepare("UPDATE categories SET name = ? , description = ? WHERE id = ? ");
-        $statement->bind_param('ssi', $name, $description, $id);
-
-    } else if (!empty($name) && empty($description)) {
-        $statement = $connection->prepare("UPDATE categories SET name = ? WHERE id = ? ");
-        $statement->bind_param('si', $name, $id);
-
-    } else if (empty($name) && !empty($description)) {
-        $statement = $connection->prepare("UPDATE categories SET description = ? WHERE id = ? ");
-        $statement->bind_param('si', $description, $id);
-
-    } else{
+    
+    if (empty($name) && empty($description) && empty($balance)) {
         $connection->close(); 
         header('location: ../../index.php?error=nothing_to_update');
         exit;
     }
-    
+
+    $statement = $connection->prepare("UPDATE categories SET " . implode(' ,' , $columns) . " WHERE id = ? ");
+    $statement->bind_param($type, ...$params);
     $status = $statement->execute();
+    
     
     if (!$status) {
         $ERRORS['error'] = "sql error : $statement->error";
