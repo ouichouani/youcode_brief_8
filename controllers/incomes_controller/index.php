@@ -10,7 +10,12 @@ $TOTAL_INCOMES = 0 ;
 $INCOMES = [];
 $ERRORS = [];
 
-$statement = $connection->query('SELECT * FROM incomes WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)');
+// $statement = $connection->query('SELECT * FROM incomes WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)');
+$statement = $connection->query("SELECT i.* FROM incomes i 
+INNER JOIN cards c 
+ON i.id_card = c.id 
+INNER JOIN users u 
+ON c.user_id = u.id WHERE c.user_id = ".$_SESSION['AuthUser']['id'] ." AND i.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
 
 if (!$statement) {
     $_SESSION['error'] = 'Database error: ' . $connection->error;

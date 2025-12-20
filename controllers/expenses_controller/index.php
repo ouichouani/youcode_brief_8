@@ -11,7 +11,12 @@ $TOTAL_EXPENSES = 0 ;
 $EXPENCES = [];
 $ERRORS = [];
 
-$statement = $connection->query('SELECT * FROM expenses WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)');
+$statement = $connection->query("SELECT e.* FROM expenses e 
+INNER JOIN cards c 
+ON e.id_card = c.id 
+INNER JOIN users u 
+ON c.user_id = u.id WHERE c.user_id = ".$_SESSION['AuthUser']['id'] ." AND e.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
+// $statement = $connection->query('SELECT * FROM expenses WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)');
 
 if (!$statement) {
     $_SESSION['error'] = 'Database error: ' . $connection->error;
