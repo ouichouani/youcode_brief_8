@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     isset($_POST['balance']) ? $balance = $_POST['balance'] : $balance = null;
     isset($_POST['description']) ? $description = trim($_POST['description']) : $description = null;
     isset($_POST['user_id']) ? $user_id = $_POST['user_id'] : $user_id = null;
+    isset($_POST['default_card']) ? $default_card = (boolean) $_POST['default_card'] : $default_card = false;
 
     if (!$name) $ERRORS['name'] = 'name is required';
     if (!$user_id) $ERRORS['user_id'] = 'user_id is required';
@@ -40,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if(!empty($description)) $description = htmlspecialchars($description);
 
-    $statement = $connection->prepare('INSERT INTO cards (name , description , balance , user_id) VALUES( ? , ? , ? , ? )') ;
+    $statement = $connection->prepare('INSERT INTO cards (name , description , balance  , default_card , user_id) VALUES( ? , ? , ? , ? , ? )') ;
     if(!$statement){
         $ERRORS['connection'] = "connection: $connection->error" ;
         $connection->close();
@@ -50,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
 
-    $statement->bind_param('ssdi' , $name , $description , $balance , $user_id) ;
+    $statement->bind_param('ssdii' , $name , $description  , $balance , $default_card , $user_id) ;
     $status = $statement->execute() ;
 
     if(!$status){
