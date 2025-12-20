@@ -2,6 +2,7 @@ show databases;
 
 
 CREATE DATABASE youcode_brief_8;
+
 USE youcode_brief_8;
 
 CREATE TABLE users (
@@ -18,6 +19,7 @@ CREATE TABLE cards (
     balance FLOAT NOT null ,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    default_card BOOLEAN DEFAULT 0 , 
     user_id INT NOT NULL,
     CONSTRAINT fk_userid_cards FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
@@ -71,10 +73,12 @@ SHOW TABLES;
 
 SELECT * FROM users;
 
+SELECT * FROM transactions;
+
 SELECT * FROM cards;
 
 SELECT * FROM categories;
 
-SELECT * FROM expenses;
+SELECT * FROM incomes;
 
 USE youcode_brief_8;
