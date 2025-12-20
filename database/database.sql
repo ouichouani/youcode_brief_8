@@ -1,7 +1,7 @@
 show databases;
 
-CREATE DATABASE youcode_brief_8;
 
+CREATE DATABASE youcode_brief_8;
 USE youcode_brief_8;
 
 CREATE TABLE users (
@@ -15,9 +15,10 @@ CREATE TABLE cards (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     description text null,
+    balance FLOAT NOT null ,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    user_id INT NULL,
+    user_id INT NOT NULL,
     CONSTRAINT fk_userid_cards FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
@@ -25,6 +26,7 @@ CREATE TABLE categories (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(255) NOT NULL,
     description text null,
+    limits int not null ,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     user_id INT NULL,
@@ -50,9 +52,7 @@ create table incomes (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     id_card INT NOT null,
-    category_id INT NULL,
-    CONSTRAINT fk_id_card_incomes FOREIGN KEY (id_card) REFERENCES cards (id),
-    CONSTRAINT fk_categoryid FOREIGN KEY (category_id) REFERENCES categories (id)
+    CONSTRAINT fk_id_card_incomes FOREIGN KEY (id_card) REFERENCES cards (id) ON DELETE CASCADE
 );
 
 create table expenses (
@@ -64,7 +64,7 @@ create table expenses (
     category_id INT NULL,
     id_card INT NOT null,
     CONSTRAINT fk_categoryid_expenses FOREIGN KEY (category_id) REFERENCES categories (id),
-    CONSTRAINT fk_id_card_expences FOREIGN KEY (id_card) REFERENCES cards (id)
+    CONSTRAINT fk_id_card_expences FOREIGN KEY (id_card) REFERENCES cards (id) 
 );
 
 SHOW TABLES;
@@ -74,3 +74,7 @@ SELECT * FROM users;
 SELECT * FROM cards;
 
 SELECT * FROM categories;
+
+SELECT * FROM expenses;
+
+USE youcode_brief_8;
